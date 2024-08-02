@@ -37,3 +37,38 @@ This will compile all the components.
 ```bash
 scarb test
 ```
+
+## Scheme description
+
+Taken from [RubenSomsen blind ecash Gist](https://gist.github.com/RubenSomsen/be7a4760dd4596d06963d67baf140406).
+
+The goal of this protocol is for Bob to get Alice to perform a Diffie-Hellman key exchange blindly, such that when the unblinded value is returned, Alice recognizes it as her own, but can’t distinguish it from others (i.e. similar to a blind signature).
+
+```text
+Alice:
+A = a*G
+return A
+
+Bob:
+Y = hash_to_curve(secret_message)
+r = random blinding factor
+B'= Y + r*G
+return B'
+
+Alice:
+C' = a*B'
+  (= a*Y + a*r*G)
+return C'
+
+Bob:
+C = C' - r*A
+ (= C' - a*r*G)
+ (= a*Y)
+return C, secret_message
+
+Alice:
+Y = hash_to_curve(secret_message)
+C == a*Y
+
+If true, C must have originated from Alice
+```
