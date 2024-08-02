@@ -1,0 +1,32 @@
+name: Reference Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Install dependencies
+        run: |
+          cd tests/references/bdhke-nutshell
+          poetry install
+
+      - name: Run reference tests
+        run: |
+          cd tests/references/bdhke-nutshell
+          poetry run pytest -v bdhke_nutshell.py
