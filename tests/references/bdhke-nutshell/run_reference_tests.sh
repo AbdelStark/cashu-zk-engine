@@ -1,1 +1,2 @@
-poetry run pytest -s bdhke_nutshell.py
+#!/bin/bash
+poetry run pytest -v -s bdhke_nutshell.py
