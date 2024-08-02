@@ -9,6 +9,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tests/references/bdhke-nutshell
+
     steps:
       - uses: actions/checkout@v2
 
@@ -22,11 +26,7 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
 
       - name: Install dependencies
-        run: |
-          cd tests/references/bdhke-nutshell
-          poetry install
+        run: poetry install
 
       - name: Run reference tests
-        run: |
-          cd tests/references/bdhke-nutshell
-          poetry run pytest -v bdhke_nutshell.py
+        run: ./run_reference_tests.sh
