@@ -32,6 +32,7 @@ def test_e2e_bdhke(capsys):
     )
     A = a.pubkey
     assert A, "Failed to generate Alice's public key"
+    log(f"Alice's private key (a): {a.private_key.hex()}")
     log(f"Alice's public key (A): {A.serialize().hex()}")
     assert (
         A.serialize().hex()
@@ -59,8 +60,8 @@ def test_e2e_bdhke(capsys):
     log("Step 4: Bob signs the blinded message")
     C_, e, s = step2_bob(B_, a)
     log(f"Blinded signature (C_): {C_.serialize().hex()}")
-    log(f"DLEQ proof - e: {e}")  # e is already a string
-    log(f"DLEQ proof - s: {s}")  # s is already a string
+    log(f"DLEQ proof - e: {e.serialize()}")
+    log(f"DLEQ proof - s: {s.serialize()}")
 
     # Step 5: Alice verifies the DLEQ proof
     log("Step 5: Alice verifies the DLEQ proof")

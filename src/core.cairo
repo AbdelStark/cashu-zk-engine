@@ -12,105 +12,33 @@ const TWO_POW_32: u128 = 0x100000000;
 const TWO_POW_64: u128 = 0x10000000000000000;
 const TWO_POW_96: u128 = 0x1000000000000000000000000;
 
-/// Represents the Mint (Bob) in the BDHKE protocol
-#[derive(Destruct)]
-pub struct Mint {
-    pub k: u256, // Private key of the mint
-    pub K: Secp256k1Point, // Public key of the mint
+// 2^16
+const MAX_ATTEMPTS_HASH_TO_CURVE: u128 = 65536;
+
+fn domain_separator() -> ByteArray {
+    "Secp256k1_HashToCurve_Cashu_"
 }
 
-/// Represents a User (Alice or Carol) in the BDHKE protocol
-#[derive(Destruct)]
-pub struct User {
-    /// Secret message
-    pub x: u256,
-    /// Point on the curve corresponding to x
-    pub Y: Secp256k1Point,
-    /// Blinding factor (private key for blinding)
-    pub r: u256,
-}
+pub fn step1_alice(secret_msg: ByteArray, blinding_factor: u256) -> (Secp256k1Point, u256) {
+    let msg_to_hash = domain_separator() + secret_msg;
+    println!("msg_to_hash: {msg_to_hash}");
+    let _hash = compute_sha256_byte_array(@msg_to_hash);
 
-/// Implements the Mint functionality
-#[generate_trait()]
-pub impl MintTraitImpl of MintTrait {
-    /// Creates a new Mint with a random private key
-    fn new(k: u256) -> Mint {
-        let K = Secp256Trait::<Secp256k1Point>::get_generator_point().mul(k).unwrap_syscall();
-        Mint { k, K }
-    }
+    let mut counter = 0;
+    while counter < MAX_ATTEMPTS_HASH_TO_CURVE {
+        counter += 1;
+    };
 
-    /// Signs a blinded message
-    ///
-    /// # Arguments
-    /// * `B_` - The blinded message point
-    ///
-    /// # Returns
-    /// The blinded signature point C_
-    fn sign(ref self: Mint, B_: Secp256k1Point) -> Secp256k1Point {
-        B_.mul(self.k).unwrap_syscall()
-    }
-
-    /// Verifies a token
-    ///
-    /// # Arguments
-    /// * `x` - The secret message
-    /// * `C` - The unblinded signature point
-    ///
-    /// # Returns
-    /// True if the token is valid, false otherwise
-    fn verify(self: Mint, x: u256, C: Secp256k1Point) -> bool {
-        let Y = hash_to_curve(x);
-        let expected_C_coordinates = Y
-            .mul(self.k)
-            .unwrap_syscall()
-            .get_coordinates()
-            .unwrap_syscall();
-        let c_coordinates = C.get_coordinates().unwrap_syscall();
-        expected_C_coordinates == c_coordinates
-    }
-}
-
-/// Implements the User functionality
-#[generate_trait()]
-pub impl UserTraitImpl of UserTrait {
-    /// Creates a new User with a random secret message and blinding factor
-    fn new(x: u256, r: u256) -> User {
-        let Y = hash_to_curve(x);
-        User { x, Y, r }
-    }
-
-    /// Blinds the message
-    ///
-    /// # Returns
-    /// The blinded message point B_
-    fn blind(ref self: User) -> Secp256k1Point {
-        let G = Secp256Trait::<Secp256k1Point>::get_generator_point();
-        self.Y.add(G.mul(self.r).unwrap_syscall()).unwrap_syscall()
-    }
-
-    /// Unblinds the signature
-    ///
-    /// # Arguments
-    /// * `C_` - The blinded signature point
-    /// * `K` - The mint's public key
-    ///
-    /// # Returns
-    /// The unblinded signature point C
-    fn unblind(ref self: User, C_: Secp256k1Point, K: Secp256k1Point) -> Secp256k1Point {
-        C_.add(K.mul(self.r).unwrap_syscall()).unwrap_syscall()
-    }
-
-    /// Creates a token
-    ///
-    /// # Returns
-    /// A tuple containing the secret message and the unblinded signature point
-    fn create_token(ref self: User, C: Secp256k1Point) -> (u256, Secp256k1Point) {
-        (self.x, C)
-    }
+    // let B_ = Secp256Trait::<Secp256k1Point>::secp256_ec_get_point_from_x_syscall(0, false)
+    //     .unwrap_syscall()
+    //     .unwrap();
+    let B_ = Secp256Trait::<Secp256k1Point>::get_generator_point();
+    let r = blinding_factor;
+    (B_, r)
 }
 
 
-/// Hashes a message to a point on the secp256k1 curve
+/// Generates a secp256k1 point from a message.
 ///
 /// # Arguments
 /// * `message` - The message to hash
