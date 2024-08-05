@@ -2,28 +2,50 @@ use core::traits::{Into, TryInto};
 use core::fmt::{Display, Formatter, Error};
 use core::to_byte_array::AppendFormattedToByteArray;
 
+/// Converts an array of 8 u32 values into a u256 value.
+///
+/// # Arguments
+///
+/// * `input` - An array of 8 u32 values to be converted.
+///
+/// # Returns
+///
+/// A u256 value representing the concatenated input array.
 pub fn hash_to_u256(input: [u32; 8]) -> u256 {
     let mut value: u256 = 0;
     for word in input.span() {
+        // Shift left by 32 bits (multiply by 2^32)
         value *= 0x100000000;
+        // Add the current word
         value = value + (*word).into();
     };
     value
 }
 
-
-/// Converts a u32 to a byte array in big endian format
-/// Example: 0x12345678 -> [0x12, 0x34, 0x56, 0x78]
-/// Example: 1 -> [0x00, 0x00, 0x00, 0x01]
+/// Converts a u32 to a byte array in big endian format.
+///
+/// # Arguments
+///
+/// * `input` - A u32 value to be converted.
+///
+/// # Returns
+///
+/// A ByteArray representing the input in big endian format.
 pub fn u32_to_byte_array(input: u32) -> ByteArray {
     let mut ba = Default::default();
     ba.append_word(input.into(), 4);
     ba
 }
 
-/// Converts a u32 to a byte array in little endian format
-// Example: 0x12345678 -> [0x78, 0x56, 0x34, 0x12]
-// Example: 1 -> [0x01, 0x00, 0x00, 0x00]
+/// Converts a u32 to a byte array in little endian format.
+///
+/// # Arguments
+///
+/// * `input` - A u32 value to be converted.
+///
+/// # Returns
+///
+/// A ByteArray representing the input in little endian format.
 pub fn u32_to_byte_array_little_endian(input: u32) -> ByteArray {
     let mut ba = Default::default();
     // Extract bytes using bit manipulation and masks
@@ -40,6 +62,15 @@ pub fn u32_to_byte_array_little_endian(input: u32) -> ByteArray {
     ba
 }
 
+/// Converts an array of 8 u32 values into a ByteArray.
+///
+/// # Arguments
+///
+/// * `input` - An array of 8 u32 values to be converted.
+///
+/// # Returns
+///
+/// A ByteArray representing the concatenated input array.
 pub fn slice_to_byte_array(input: [u32; 8]) -> ByteArray {
     let mut ba = Default::default();
     for word in input.span() {
@@ -48,6 +79,7 @@ pub fn slice_to_byte_array(input: [u32; 8]) -> ByteArray {
     ba
 }
 
+/// Implements the Into trait for converting u256 to ByteArray.
 pub impl U256IntoByteArray of Into<u256, ByteArray> {
     fn into(self: u256) -> ByteArray {
         let mut ba = Default::default();
@@ -57,12 +89,22 @@ pub impl U256IntoByteArray of Into<u256, ByteArray> {
     }
 }
 
+/// Implements the Into trait for converting u32 to ByteArray.
 pub impl U32IntoByteArray of Into<u32, ByteArray> {
     fn into(self: u32) -> ByteArray {
         u32_to_byte_array_little_endian(self)
     }
 }
 
+/// Converts a ByteArray to a hexadecimal string representation.
+///
+/// # Arguments
+///
+/// * `value` - A ByteArray to be converted to hex.
+///
+/// # Returns
+///
+/// A ByteArray containing the hexadecimal string representation of the input.
 pub fn byte_array_to_hex(value: ByteArray) -> ByteArray {
     let mut f: Formatter = Default::default();
     let len = value.len();

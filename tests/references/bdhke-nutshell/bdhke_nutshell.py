@@ -22,8 +22,8 @@ def test_e2e_bdhke(capsys):
 
     log("Starting end-to-end test for Blind Diffie-Hellman Key Exchange (BDHKE)")
 
-    # Step 1: Set up Alice's keys
-    log("Step 1: Setting up Alice's keys")
+    log("\n***********************************************************")
+    log("INIT: Setting up Alice's keys")
     a = PrivateKey(
         privkey=bytes.fromhex(
             "0000000000000000000000000000000000000000000000000000000000000001"
@@ -38,9 +38,10 @@ def test_e2e_bdhke(capsys):
         A.serialize().hex()
         == "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
     ), "Alice's public key does not match expected value"
+    log("***********************************************************\n")
 
-    # Step 2: Prepare the secret message and blinding factor
-    log("Step 2: Preparing secret message and blinding factor")
+    log("\n***********************************************************")
+    log("PREPARE: Preparing secret message and blinding factor")
     secret_msg = "test_message"
     r = PrivateKey(
         privkey=bytes.fromhex(
@@ -56,37 +57,46 @@ def test_e2e_bdhke(capsys):
 
     log(f"Blinding factor public key r x_coord: {x_coord.hex()}")
     log(f"Blinding factor public key r y_coord: {y_coord.hex()}")
+    log("***********************************************************\n")
 
-    # Step 3: Alice blinds the message
-    log("Step 3: Alice blinds the message")
+    log("\n***********************************************************")
+    log("STEP 1: Alice blinds the message")
     B_, _ = step1_alice(secret_msg, r)
     log(f"Blinded message (B_): {B_.serialize().hex()}")
+    x_coord, y_coord = pubkey_to_xy(B_)
+    log(f"Blinded message public key r x_coord: {int.from_bytes(x_coord, 'big')}")
+    log(f"Blinded message public key r y_coord: {int.from_bytes(y_coord, 'big')}")
+    log("***********************************************************\n")
 
-    # Step 4: Bob signs the blinded message
-    log("Step 4: Bob signs the blinded message")
+    log("\n***********************************************************")
+    log("STEP 2: Bob signs the blinded message")
     C_, e, s = step2_bob(B_, a)
     log(f"Blinded signature (C_): {C_.serialize().hex()}")
     log(f"DLEQ proof - e: {e.serialize()}")
     log(f"DLEQ proof - s: {s.serialize()}")
+    log("***********************************************************\n")
 
-    # Step 5: Alice verifies the DLEQ proof
-    log("Step 5: Alice verifies the DLEQ proof")
+    log("\n***********************************************************")
+    log("ALICE VERIFY: Alice verifies the DLEQ proof")
     alice_verification = alice_verify_dleq(B_, C_, e, s, A)
     assert alice_verification, "Alice's DLEQ verification failed"
     log("Alice successfully verified the DLEQ proof")
+    log("***********************************************************\n")
 
-    # Step 6: Alice unblinds the signature
-    log("Step 6: Alice unblinds the signature")
+    log("\n***********************************************************")
+    log("STEP 3: Alice unblinds the signature")
     C = step3_alice(C_, r, A)
     log(f"Unblinded signature (C): {C.serialize().hex()}")
+    log("***********************************************************\n")
 
-    # Step 7: Carol verifies the unblinded signature
-    log("Step 7: Carol verifies the unblinded signature")
+    log("\n***********************************************************")
+    log("CAROL VERIFY: Carol verifies the unblinded signature")
     carol_verification = carol_verify_dleq(
         secret_msg=secret_msg, C=C, r=r, e=e, s=s, A=A
     )
     assert carol_verification, "Carol's DLEQ verification failed"
     log("Carol successfully verified the unblinded signature")
+    log("***********************************************************\n")
 
     log("End-to-end test completed successfully")
 
