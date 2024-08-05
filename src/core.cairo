@@ -28,12 +28,8 @@ fn domain_separator() -> ByteArray {
 /// # Returns
 /// - The blinded message.
 pub fn step1_alice(secret_msg: ByteArray, blinding_factor: Secp256k1Point) -> Secp256k1Point {
-    let maybe_Y = hash_to_curve(secret_msg);
-    if maybe_Y.is_none() {
-        panic!("Failed to hash to curve");
-    }
-    let B_ = Secp256Trait::<Secp256k1Point>::get_generator_point();
-    B_
+    let Y = hash_to_curve(secret_msg).expect('ERR_HASH_TO_CURVE');
+    Y.add(blinding_factor).unwrap()
 }
 
 
