@@ -72,3 +72,9 @@ C == a*Y
 
 If true, C must have originated from Alice
 ```
+
+## Resources
+
+- [Cashu documentation](https://docs.cashu.space/)
+- [Cashu slides by Gandalf](https://lconf.gandlaf.com/)
+- [Nutshell reference implementation](https://github.com/cashubtc/nutshell)
