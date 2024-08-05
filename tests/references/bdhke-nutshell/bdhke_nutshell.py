@@ -49,7 +49,13 @@ def test_e2e_bdhke(capsys):
         raw=True,
     )
     log(f"Secret message: {secret_msg}")
-    log(f"Blinding factor (r): {r.private_key.hex()}")
+    log(f"r private key: {r.private_key.hex()}")
+    log(f"Blinding factor (r): {r.pubkey.serialize().hex()}")
+
+    x_coord, y_coord = pubkey_to_xy(r.pubkey)
+
+    log(f"Blinding factor public key r x_coord: {x_coord.hex()}")
+    log(f"Blinding factor public key r y_coord: {y_coord.hex()}")
 
     # Step 3: Alice blinds the message
     log("Step 3: Alice blinds the message")
@@ -91,3 +97,37 @@ def test_e2e_bdhke(capsys):
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
+
+
+def is_on_curve_secp256k1(x_bytes: bytes, y_bytes: bytes) -> bool:
+    """
+    Check if the point (x, y) is on the secp256k1 curve.
+    The secp256k1 curve equation is y^2 = x^3 + 7.
+    """
+    p = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
+    # Convert bytes to integers
+    x = int.from_bytes(x_bytes, 'big')
+    y = int.from_bytes(y_bytes, 'big')
+
+    # Curve equation: y^2 % p = (x^3 + 7) % p
+    left_side = (y ** 2) % p
+    right_side = ((x ** 3) + 7) % p
+
+    return left_side == right_side
+
+def pubkey_to_xy(key: PublicKey) -> (int, int):
+    """
+    Convert a secp256k1 public key to its x and y coordinates.
+    """
+    # Serialize the public key in uncompressed format
+    uncompressed_key = key.serialize(compressed=False)
+
+    # Extract x and y coordinates
+    x_coord = uncompressed_key[1:33]  # Skip the first byte (0x04 prefix)
+    y_coord = uncompressed_key[33:65]
+
+    # Check if the point is on the curve
+    is_on_curve = is_on_curve_secp256k1(x_coord, y_coord)
+    assert is_on_curve, "Point not on curve"
+
+    return x_coord, y_coord
