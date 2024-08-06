@@ -23,6 +23,7 @@ fn main() {
         .unwrap();
 
     let B_ = step1_alice(secret_msg, blinding_factor);
-    let B_coordinates = B_.get_coordinates().unwrap();
-    println!("Blinded message: {:?}", B_coordinates);
+    let (B_x, B_y) = B_.get_coordinates().unwrap();
+    println!("S1_Blinded_message_x: {B_x}");
+    println!("S1_Blinded_message_y: {B_y}");
 }

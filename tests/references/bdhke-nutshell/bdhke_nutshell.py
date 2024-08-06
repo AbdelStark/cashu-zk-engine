@@ -54,9 +54,6 @@ def test_e2e_bdhke(capsys):
     log(f"Blinding factor (r): {r.pubkey.serialize().hex()}")
 
     x_coord, y_coord = pubkey_to_xy(r.pubkey)
-
-    log(f"Blinding factor public key r x_coord: {x_coord.hex()}")
-    log(f"Blinding factor public key r y_coord: {y_coord.hex()}")
     log("***********************************************************\n")
 
     log("\n***********************************************************")
@@ -64,8 +61,8 @@ def test_e2e_bdhke(capsys):
     B_, _ = step1_alice(secret_msg, r)
     log(f"Blinded message (B_): {B_.serialize().hex()}")
     x_coord, y_coord = pubkey_to_xy(B_)
-    log(f"Blinded message public key r x_coord: {int.from_bytes(x_coord, 'big')}")
-    log(f"Blinded message public key r y_coord: {int.from_bytes(y_coord, 'big')}")
+    log(f"S1_Blinded_message_x: {int.from_bytes(x_coord, 'big')}")
+    log(f"S1_Blinded_message_y: {int.from_bytes(y_coord, 'big')}")
     log("***********************************************************\n")
 
     log("\n***********************************************************")

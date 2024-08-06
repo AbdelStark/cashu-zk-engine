@@ -27,3 +27,6 @@ Cargo.lock
 *.pyo
 *.pyd
 **/__pycache__/
+
+**/target
+**/.DS_Store

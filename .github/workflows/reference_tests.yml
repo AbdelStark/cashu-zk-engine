@@ -9,15 +9,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests/references/bdhke-nutshell
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
@@ -25,8 +22,33 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
 
+      - name: Install Scarb
+        uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: "2.3.1"
+
       - name: Install dependencies
+        working-directory: tests/references/bdhke-nutshell
         run: poetry install
 
       - name: Run reference tests
-        run: ./run_reference_tests.sh
+        run: |
+          ./tests/references/reference_tests.sh
+
+      - name: Check test results
+        run: |
+          if grep -q "false" tests/references/target/results.json; then
+            echo "Some tests failed. Check the report for details."
+            exit 1
+          fi
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: |
+            tests/references/target/report.txt
+            tests/references/target/results.json
+            tests/references/target/cairo_output.log
+            tests/references/target/nutshell_output.log
