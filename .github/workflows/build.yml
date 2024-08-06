@@ -16,3 +16,4 @@ jobs:
       - uses: asdf-vm/actions/install@v3
       - run: scarb fmt --check
       - run: scarb build
+      - run: scarb cairo-run --available-gas=200000000
