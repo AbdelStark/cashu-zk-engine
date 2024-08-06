@@ -91,7 +91,8 @@ do
 done < "$PATTERNS_FILE"
 
 # Finalize results file
-sed -i '' '$ s/,$//' "$RESULTS_FILE"  # Remove trailing comma
+# Remove the trailing comma and add the closing brace
+sed -i.bak '$ s/,$//' "$RESULTS_FILE" && rm "${RESULTS_FILE}.bak"
 echo "}" >> "$RESULTS_FILE"
 
 # Add summary to report
