@@ -23,9 +23,7 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
 
       - name: Install Scarb
-        uses: software-mansion/setup-scarb@v1
-        with:
-          scarb-version: "2.3.1"
+        uses: asdf-vm/actions/install@v3
 
       - name: Install dependencies
         working-directory: tests/references/bdhke-nutshell
