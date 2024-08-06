@@ -32,6 +32,10 @@ extract_values() {
     grep "$pattern" "$log_file" | cut -d':' -f2 | tr -d ' '
 }
 
+# Initialize counters
+total_patterns=0
+matching_patterns=0
+
 # Function to compare values and update results
 compare_values() {
     local pattern=$1
@@ -41,6 +45,8 @@ compare_values() {
     echo "Pattern: $pattern" >> "$REPORT_FILE"
     echo "Cairo value: $cairo_value" >> "$REPORT_FILE"
     echo "Nutshell value: $nutshell_value" >> "$REPORT_FILE"
+    
+    total_patterns=$((total_patterns + 1))
     
     if [ -z "$cairo_value" ] && [ -z "$nutshell_value" ]; then
         echo "  \"$pattern\": false," >> "$RESULTS_FILE"
@@ -54,6 +60,7 @@ compare_values() {
     elif [ "$cairo_value" = "$nutshell_value" ]; then
         echo "  \"$pattern\": true," >> "$RESULTS_FILE"
         echo "✅ $pattern: Match" >> "$REPORT_FILE"
+        matching_patterns=$((matching_patterns + 1))
     else
         echo "  \"$pattern\": false," >> "$RESULTS_FILE"
         echo "❌ $pattern: Mismatch" >> "$REPORT_FILE"
@@ -78,7 +85,7 @@ echo "=====================" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 
 # Compare values for each pattern
-while IFS= read -r pattern
+while IFS= read -r pattern || [ -n "$pattern" ]
 do
     compare_values "$pattern"
 done < "$PATTERNS_FILE"
@@ -87,9 +94,7 @@ done < "$PATTERNS_FILE"
 sed -i '' '$ s/,$//' "$RESULTS_FILE"  # Remove trailing comma
 echo "}" >> "$RESULTS_FILE"
 
-# Calculate and add summary to report
-total_patterns=$(wc -l < "$PATTERNS_FILE")
-matching_patterns=$(grep -c "true" "$RESULTS_FILE")
+# Add summary to report
 echo "Summary:" >> "$REPORT_FILE"
 echo "--------" >> "$REPORT_FILE"
 echo "Total patterns: $total_patterns" >> "$REPORT_FILE"
