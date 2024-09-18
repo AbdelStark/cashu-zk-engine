@@ -1,9 +1,6 @@
 use starknet::{
-    secp256k1::{Secp256k1Point},
-    secp256_trait::{
-        Secp256Trait, Secp256PointTrait, recover_public_key, is_signature_entry_valid, Signature,
-    },
-    SyscallResult, SyscallResultTrait
+    secp256k1::{Secp256k1Point}, secp256_trait::{Secp256Trait, Secp256PointTrait,},
+    SyscallResultTrait
 };
 
 use bdhke::core::step1_alice;

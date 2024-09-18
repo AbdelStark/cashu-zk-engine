@@ -1,5 +1,5 @@
 use core::traits::{Into, TryInto};
-use core::fmt::{Display, Formatter, Error};
+use core::fmt::Formatter;
 use core::to_byte_array::AppendFormattedToByteArray;
 
 /// Converts an array of 8 u32 values into a u256 value.

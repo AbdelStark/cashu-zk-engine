@@ -1,16 +1,13 @@
 // Core lib imports
 use core::traits::Into;
 use core::option::OptionTrait;
-use core::starknet::SyscallResultTrait;
 use core::sha256::compute_sha256_byte_array;
 
 // Starknet imports
 use starknet::{secp256k1::{Secp256k1Point}, secp256_trait::{Secp256Trait, Secp256PointTrait}};
 
 // Internal imports
-use bdhke::utils::{
-    U256IntoByteArray, U32IntoByteArray, slice_to_byte_array, hash_to_u256, byte_array_to_hex,
-};
+use bdhke::utils::{U256IntoByteArray, U32IntoByteArray, slice_to_byte_array, hash_to_u256,};
 
 fn domain_separator() -> ByteArray {
     "Secp256k1_HashToCurve_Cashu_"
@@ -71,10 +68,8 @@ pub fn hash_to_curve(message: ByteArray) -> Option<Secp256k1Point> {
 #[cfg(test)]
 mod tests {
     // Core lib imports
-    use core::traits::Into;
     use core::option::OptionTrait;
     use core::starknet::SyscallResultTrait;
-    use core::sha256::compute_sha256_byte_array;
 
     // Starknet imports
     use starknet::{secp256k1::{Secp256k1Point}, secp256_trait::{Secp256Trait, Secp256PointTrait}};
